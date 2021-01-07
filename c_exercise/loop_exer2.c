@@ -16,12 +16,18 @@ int main(void)
 	printf("请输入一个整型数:");
 	scanf("%d", &num);
 
+#if 0
 	// 123
 	for (; num > 0; num = num / 10) {
 		res = res * 10 + num % 10;
 		printf("%d, ", num % 10);
 	}
 	printf("\n");
+#endif
+	while (num > 0) {
+		res = res * 10 + num % 10;
+		num = num / 10; // num /= 10
+	}
 
 	printf("逆序数:%d\n", res);
 
