@@ -24,6 +24,7 @@ int main(void)
 	int year, month;
 	int i;
 	int weekday;
+	int monthdays;
 
 	printf("输入日期(year/month):");
 	scanf("%d/%d", &year, &month);
@@ -51,7 +52,35 @@ int main(void)
 	sumdays += 1;
 
 	weekday = sumdays % 7;
-	printf("%d\n", weekday);
+	// printf("%d\n", weekday);
+
+	// 用户输入的月份有多少天
+	if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || \
+			month == 10 || month == 12)
+		monthdays = 31;
+	else if (month == 4 || month == 6 || month == 9 || month == 11)
+		monthdays = 30;
+	else {
+		if (year % 4 == 0 && year % 100 != 0 || \
+				year % 400 == 0)	
+			monthdays = 29;
+		else
+			monthdays = 28;
+	} 
+
+	// 打印日历--->year/month/1是星期weekday, month月有monthdays
+	printf("       %d月 %d\n", month, year);
+	printf("日 一 二 三 四 五 六\n");
+	for (i = 0; i < weekday; i++)
+		printf("   ");
+	for (i = 1; i <= monthdays; i++) {
+		printf("%2d", i);	
+		if ((weekday+i) % 7 == 0)
+			printf("\n");
+		else
+			printf(" ");
+	}
+	printf("\n");
 
 	return 0;
 }
