@@ -16,3 +16,45 @@
    总天数==1990~2008不包括2008总天数+2008.1.1~2008.3.1
 
  */
+#include <stdio.h>
+
+int main(void)
+{
+	int sumdays = 0;
+	int year, month;
+	int i;
+	int weekday;
+
+	printf("输入日期(year/month):");
+	scanf("%d/%d", &year, &month);
+
+	// 1990～year-1
+	for (i = 1990; i < year; i++) {
+		sumdays += (365+(i % 4 == 0 && i % 100 != 0 || i % 400 == 0));
+	}
+
+	// year.1.1~year.month.1
+	for (i = 1; i < month; i++) {
+		if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || \
+				i == 10 || i == 12)
+			sumdays += 31;
+		else if (i == 4 || i == 6 || i == 9 || i == 11)
+			sumdays += 30;
+		else {
+			if (year % 4 == 0 && year % 100 != 0 || \
+					year % 400 == 0)	
+				sumdays += 29;
+			else
+				sumdays += 28;
+		} 
+	}
+	sumdays += 1;
+
+	weekday = sumdays % 7;
+	printf("%d\n", weekday);
+
+	return 0;
+}
+
+
+
