@@ -9,16 +9,31 @@ gcc四个步骤
 #include <stdio.h>
 
 #define NUM 	10
+#define SQUARE(x)	(x)*(x)
+#define SWAP(x, y) \
+	do {\
+		typeof(x) t; t = x; x = y; y = t;\
+	}while(0)
 
 int main(void)
 {
 	int i;
 	int score;
+	int m, n;
 
 	printf("good morning\n");
 
+#if 0
 	for (i = 0; i < NUM; i++)
 		scanf("%d", &score);
+#endif
+	i = 5;
+	printf("%d\n", SQUARE(i+2)); // i+2*i+2
+
+	m = 10;
+	n = 20;
+	SWAP(m, n);
+	printf("m:%d, n:%d\n", m, n);
 	
 	return 0;
 }
