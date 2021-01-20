@@ -20,6 +20,7 @@ int main(void)
 		m = n + ver;
 		printf("%d+%d=%d\n", n, ver, m);
 		n = m;
+		i++;
 	}
 	if (i == 7) {
 		printf("经过7次也未得到回文数\n");
