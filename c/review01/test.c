@@ -10,3 +10,67 @@
  ./a.out hello world
  
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef int (*cmp_t)(const void *data1, const void *data2);
+
+int max_or_min(void *arr, int nmemb, int size, cmp_t cmp);
+
+static int int_cmp(const void *data1, const void *data2)
+{
+	const int *d1 = data1;
+	const int *d2 = data2;
+
+	return *d1 - *d2;
+}
+
+static int int_cmp2(const void *data1, const void *data2)
+{
+	const int *d1 = data1;
+	const int *d2 = data2;
+
+	return *d2 - *d1;
+}
+
+int main(void)
+{
+	int arr[] = {3,1,8,9,2,3,4,6,1};
+	int max_index, min_index;
+
+	max_index = max_or_min(arr, sizeof(arr) / sizeof(*arr), sizeof(int), int_cmp);
+	printf("max:%d\n", arr[max_index]);
+
+	min_index = max_or_min(arr, sizeof(arr) / sizeof(*arr), sizeof(int), int_cmp2);
+
+	printf("min:%d\n", arr[min_index]);
+	
+	return 0;
+}
+
+int max_or_min(void *arr, int nmemb, int size, cmp_t cmp)
+{
+	int i;
+	char *tmp;
+	int j;
+
+	tmp = malloc(size);
+
+	memcpy(tmp, arr, size);
+	j = 0;
+	for (i = 1; i < nmemb; i++) {
+		if (cmp(tmp, (char *)arr+i*size) < 0) {
+			memcpy(tmp, (char *)arr+i*size, size);
+			j = i;
+		}
+	}
+
+	free(tmp);	
+	return j;
+}
+
+
+
+
+
