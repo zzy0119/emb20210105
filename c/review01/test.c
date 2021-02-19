@@ -17,6 +17,7 @@
 typedef int (*cmp_t)(const void *data1, const void *data2);
 
 int max_or_min(void *arr, int nmemb, int size, cmp_t cmp);
+int myatoi(const char *p);
 
 static int int_cmp(const void *data1, const void *data2)
 {
@@ -34,10 +35,16 @@ static int int_cmp2(const void *data1, const void *data2)
 	return *d2 - *d1;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	int arr[] = {3,1,8,9,2,3,4,6,1};
 	int max_index, min_index;
+
+	if (argc < 2)
+		return 1;
+	
+	printf("%d\n", myatoi(argv[1]));
+
 
 	max_index = max_or_min(arr, sizeof(arr) / sizeof(*arr), sizeof(int), int_cmp);
 	printf("max:%d\n", arr[max_index]);
@@ -71,6 +78,26 @@ int max_or_min(void *arr, int nmemb, int size, cmp_t cmp)
 }
 
 
+int myatoi(const char *p)
+{
+	int ret = 1;
+	int res = 0;
 
+	if (p == NULL)
+		return 0; // exit(); 进程终止了
+	if (*p == '-') {
+		ret = -1;
+		p++;
+	}
+
+	while (*p) {
+		if (*p < '0' || *p > '9')
+			break;
+		res = res * 10 + (*p - '0');
+		p++;
+	}
+
+	return res * ret;
+}
 
 
