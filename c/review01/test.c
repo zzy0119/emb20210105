@@ -18,6 +18,7 @@ typedef int (*cmp_t)(const void *data1, const void *data2);
 
 int max_or_min(void *arr, int nmemb, int size, cmp_t cmp);
 int myatoi(const char *p);
+char **save_cmdline(int argc, char *argv[]);
 
 static int int_cmp(const void *data1, const void *data2)
 {
@@ -39,11 +40,21 @@ int main(int argc, char *argv[])
 {
 	int arr[] = {3,1,8,9,2,3,4,6,1};
 	int max_index, min_index;
+	char **ret;
 
 	if (argc < 2)
 		return 1;
 	
 	printf("%d\n", myatoi(argv[1]));
+
+	// test3
+	ret = save_cmdline(argc, argv);
+	for (int i = 0; ret[i] != NULL; i++)
+		puts(ret[i]);
+
+	for (int i = 0; ret[i]; i++)	
+		free(ret[i]);
+	free(ret);
 
 
 	max_index = max_or_min(arr, sizeof(arr) / sizeof(*arr), sizeof(int), int_cmp);
@@ -99,5 +110,29 @@ int myatoi(const char *p)
 
 	return res * ret;
 }
+
+char **save_cmdline(int argc, char *argv[])
+{
+	char **p;
+
+	p = calloc(argc+1, sizeof(char *));
+	if (NULL == p)
+		return NULL;
+
+	for (int i = 0; i < argc; i++) {
+		p[i] = malloc(strlen(argv[i]+1));
+		strcpy(p[i], argv[i]);
+	}
+
+	return p;
+}
+
+
+
+
+
+
+
+
 
 
