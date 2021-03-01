@@ -34,5 +34,14 @@ void seqlistTraval(const seqlist_t *s, void (*pri)(const void *data))
 	}
 }
 
+void *seqlistFind(const seqlist_t *s, const void *key, cmp_t cmp)
+{
+	for (int i = 0; i < s->nmemb; i++) {
+		if (cmp((char *)s->arr + i * s->size, key) == 0)
+			return (char *)s->arr + i * s->size;
+	}
+
+	return NULL;
+}
 
 
