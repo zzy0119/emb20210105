@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "seqlist.h"
@@ -33,6 +35,14 @@ static int nameCmp(const void *data, const void *key)
 	return strcmp(d->name, k);
 }
 
+static int ageCmp(const void *data, const void *newdata)
+{
+	const struct stu_st *d = data;
+	const struct stu_st *new = newdata;
+
+	return new->age - d->age;
+}
+
 int main(void)
 {
 	seqlist_t *mylist;
@@ -44,10 +54,12 @@ int main(void)
 	mylist = seqlistInit(sizeof(struct stu_st));
 	// if error
 
+	srand(getpid());
+
 	for (int i = 1; i <= 20; i += 2) {
-		s.age = 20+i;
+		s.age = 20 + rand() % 10;
 		snprintf(s.name, NAMESIZE, "stu%d", i);
-		seqlistInsert(mylist, &s);
+		seqlistSortInsert(mylist, &s, ageCmp);
 	}
 
 	seqlistTraval(mylist, showStu);
