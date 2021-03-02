@@ -1,43 +1,70 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "seqlist.h"
 
-static void showInt(const void *data)
-{
-	const int *d = data;
+#define NAMESIZE	32
 
-	printf("%d\n", *d);
+struct stu_st {
+	char name[NAMESIZE];
+	int age;
+};
+
+static void showStu(const void *data)
+{
+	const struct stu_st *d = data;
+
+	printf("%s %d\n", d->name, d->age);
 }
 
 static int intcmp(const void *data, const void *key)
 {
-	const int *d = data;
+	const struct stu_st *d = data;
 	const int *k = key;
 
-	return *d - *k;
+	return d->age - *k;
+}
+
+static int nameCmp(const void *data, const void *key)
+{
+	const struct stu_st *d =  data;
+	const char *k = key;
+
+	return strcmp(d->name, k);
 }
 
 int main(void)
 {
 	seqlist_t *mylist;
 	int key;
-	void *f;
+	struct stu_st *f;
+	struct stu_st s;
+	char *delname;
 
-	mylist = seqlistInit(sizeof(int));
+	mylist = seqlistInit(sizeof(struct stu_st));
 	// if error
 
 	for (int i = 1; i <= 20; i += 2) {
-		seqlistInsert(mylist, &i);
+		s.age = 20+i;
+		snprintf(s.name, NAMESIZE, "stu%d", i);
+		seqlistInsert(mylist, &s);
 	}
 
-	seqlistTraval(mylist, showInt);
+	seqlistTraval(mylist, showStu);
 
 	key = 25;	
 	f = seqlistFind(mylist, &key, intcmp);
 	if (f == NULL)
 		printf("沒有值位%d的元素\n", key);
 	else 
-		printf("找到了%d\n", *(int *)f);
+		printf("找到了%s\n", f->name);
+
+	// 删除
+	delname = "stu11";		
+	seqlistDelete(mylist, delname, nameCmp);
+	seqlistTraval(mylist, showStu);
+
+	seqlistDestroy(mylist);
 
 	return 0;
 }
