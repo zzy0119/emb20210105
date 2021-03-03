@@ -10,7 +10,8 @@ int listheadInit(int size, listhead_t **l)
 	if (NULL == h)
 		return -1;
 
-	h->next = NULL;
+	h->head.data = NULL;
+	h->head.next = NULL;
 	h->size = size;
 	h->nmemb = 0;
 
@@ -35,10 +36,10 @@ int listInsert(listhead_t *l, const void *data, int way)
 	}
 	memcpy(new->data, data, l->size);
 	if (way == HEADINSERT) {
-		new->next = l->next;
-		l->next = new;
+		new->next = l->head.next;
+		l->head.next = new;
 	} else if (way == TAILINSERT) {
-		for (p = l->next; p->next != NULL; p = p->next)	
+		for (p = l->head.next; p->next != NULL; p = p->next)	
 			;
 		p->next = new;
 		new->next = NULL;
@@ -47,18 +48,39 @@ int listInsert(listhead_t *l, const void *data, int way)
 	return 0;
 }
 
-/*
+// 返回待查找结点的前驱结点地址
+static const node_t *findPrevNode(const listhead_t *l, const void *key, cmp_t cmp)
+{
+	const node_t *cur, *prev;
+
+	for (prev = &l->head, cur = prev->next; cur != NULL; prev = cur, cur = cur->next) {
+		if (!cmp(cur->data, key))
+			return prev;
+	}
+	
+	return NULL;
+}
+
 int listDelete(listhead_t *l, const void *key, cmp_t cmp)
 {
-
+	node_t *cur;
+	node_t *f = (node_t *)findPrevNode(l, key, cmp);
+	if (NULL == f)
+		return -1;
+	cur = f->next;
+	f->next = cur->next;
+	cur->next = NULL;
+	free(cur->data);
+	free(cur);
+	
+	return 0;
 }
-*/
 
 void listTraval(const listhead_t *l, pri_t pri)
 {
 	node_t *p;
 
-	for (p = l->next; p != NULL; p = p->next) {
+	for (p = l->head.next; p != NULL; p = p->next) {
 		pri(p->data);
 	}
 }
@@ -85,7 +107,7 @@ void listDestroy(listhead_t *l)
 {
 	node_t *p, *n;
 
-	for (p = l->next, n = p->next; ; n = n->next) {
+	for (p = l->head.next, n = p->next; ; n = n->next) {
 		free(p);
 		p = n;
 		if (p == NULL)

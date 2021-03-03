@@ -11,7 +11,8 @@ typedef struct node_st{
 
 // 头结点
 typedef struct {
-	struct node_st *next;
+	// struct node_st *next;
+	node_t head;
 	int size;
 	int nmemb;
 }listhead_t;
