@@ -36,7 +36,7 @@ int llistDelete(llisthead_t *list, const void *key, cmp_t cmp);
 void *llistSearch(const llisthead_t *list, const void *key, cmp_t cmp);
 
 /*摘除:删掉指定结点的同事获得数据*/
-void *llistFetch(llisthead_t *list, const void *key, cmp_t cmp);
+int llistFetch(llisthead_t *list, const void *key, cmp_t cmp, void *data);
 
 /*是否为空*/
 int llistIsEmpty(const llisthead_t *list);
