@@ -23,12 +23,12 @@ int queueInit(int size, int capcity, queue_t **q)
 
 int queueEmpty(const queue_t *q)
 {
-	return q->front == q->tail && q->flag == LASTDEQ;
+	return q->front == q->tail;
 }
 
 int queueFull(const queue_t *q)
 {
-	return q->front == q->tail && q->flag == LASTENQ;
+	return q->front == (q->tail+1) % q->capacity;
 }
 
 int enq(queue_t *q, const void *data)
@@ -37,8 +37,6 @@ int enq(queue_t *q, const void *data)
 		return -1;
 	memcpy((char *)q->base + q->tail * q->size, data, q->size);
 	q->tail = (q->tail + 1) % q->capacity;
-
-	q->flag = LASTENQ;
 
 	return 0;
 }
@@ -49,8 +47,6 @@ int deq(queue_t *q, void *data)
 		return -1;
 	memcpy(data, (char *)q->base + q->front * q->size, q->size);
 	q->front = (q->front + 1) % q->capacity;
-
-	q->flag = LASTDEQ;
 
 	return 0;
 } 
