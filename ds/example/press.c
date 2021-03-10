@@ -4,7 +4,10 @@
 #include <stack.h>
 #include <queue.h>
 
+static int errornumber = 0;
+
 char *midToLast(const char *p);
+int lastRes(const char *p);
 int main(int argc, char *argv[])
 {
 	if (argc < 2)	
@@ -12,6 +15,7 @@ int main(int argc, char *argv[])
 
 	char *r = midToLast(argv[1]);
 	puts(r);
+	printf("%d\n", lastRes(r));
 
 	free(r);
 
@@ -107,6 +111,65 @@ char *midToLast(const char *p)
 	stackDestroy(s);
 	queueDestroy(q);
 
+	return res;
+}
+
+static int op2num(int left, int right, char op)
+{
+	int res;
+
+	switch (op) {
+		case '+':
+			res = left + right;
+			break;
+		case '-':
+			res = left - right;
+			break;
+		case '*':
+			res = left * right;
+			break;
+		case '/':
+			res = left / right;
+			break;
+		default:
+			// 异常
+			break;
+	}
+
+	return res;
+}
+
+int lastRes(const char *p)
+{
+	stack_t *s;
+	int left, right;
+	int res;
+	int push;
+
+	stackInit(sizeof(int), strlen(p), &s);
+
+	while (*p) {
+		if (isDigital(*p))	{
+			push = charactorToInt(*p);
+			stackPush(s, &push);
+		} else {
+			stackPop(s, &right);
+			stackPop(s, &left);
+			// if error
+			res = op2num(left, right, *p);
+
+			stackPush(s, &res);
+		}
+		p++;
+	}
+	stackPop(s, &res);
+	if (!stackIsEmpty(s)) {
+		errornumber = 1;
+		res = 0;
+	}
+
+	stackDestroy(s);
+	
 	return res;
 }
 
