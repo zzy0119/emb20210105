@@ -30,6 +30,15 @@ int main(void)
 		printf("%d %s\n", new->id, new->name);
 	}
 
+	list_for_each(pos, &head) {
+		new = list_entry(pos, struct node_st, node);
+		if (new->id == 5) {
+			list_del(&new->node);
+			break;
+		}
+	}
+
 	return 0;
 }
+
 
