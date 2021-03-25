@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -6,10 +7,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <syslog.h>
 
 #define BUFSIZE	100
 
+#define LOCKFILE	"/var/run/daemon.pid"
+
 int mydaemon(void);
+int run_already(void);
 int main(void)
 {
 	FILE *fp = NULL;
@@ -18,14 +23,29 @@ int main(void)
 	char buf[BUFSIZE] = {};
 	// 将时间字符串"yy-mm-dd hh:mm:ss"写入/tmp/out,每过一秒就写一次	
 
+#if 0
 	if (mydaemon() == -1) {
 		fprintf(stderr, "mydaemon() failed\n");
 		exit(1);
 	}
+#endif
+
+	if (daemon(0, 0) == -1) {
+		perror("daemon()");
+		exit(1);
+	}
+
+	if (run_already() == -1) {
+		syslog(LOG_ERR, "run_already() failed");
+		exit(1);
+	}
+
+	openlog(NULL, LOG_PID, LOG_DAEMON);
 
 	fp = fopen("/tmp/out", "w");
 	if (NULL == fp) {
-		perror("fopen()");
+		// perror("fopen()");
+		syslog(LOG_ERR, "fopen():%s", strerror(errno));
 		exit(1);
 	}
 
@@ -37,11 +57,15 @@ int main(void)
 		strftime(buf, BUFSIZE, "%Y-%m-%d %H:%M:%S\n", tmp);
 		fputs(buf, fp);
 		fflush(NULL);
+
+// 		syslog(LOG_INFO, "%s 写入了/tmp/out", \
+				buf);
 	
 		sleep(1);
 	}
 
 	fclose(fp);
+	closelog();
 
 	exit(0);
 }
@@ -80,5 +104,35 @@ int mydaemon(void)
 
 	return 0;
 }
+
+int run_already(void)
+{
+	int fd;
+	char buf[BUFSIZE] = {};
+
+	fd = open(LOCKFILE, O_WRONLY | O_CREAT, 0664);	
+	if (fd == -1) {
+		syslog(LOG_ERR, "open():%s", strerror(errno));
+		return -1;
+	}
+
+	if (lockf(fd, F_TLOCK, 0) == -1) {
+		syslog(LOG_ERR, "lockf():%s", strerror(errno));
+		close(fd);
+		return -1;
+	}
+
+	ftruncate(fd, 0);
+	snprintf(buf, BUFSIZE, "%d", getpid());
+	write(fd, buf, strlen(buf));
+
+	return 0;
+}
+
+
+
+
+
+
 
 
