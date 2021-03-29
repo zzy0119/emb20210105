@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #define BUFSIZE	10
 #define CPS		10
@@ -13,7 +14,7 @@ static int token = 0;
 
 static void alrm_handler(int s)
 {
-	alarm(1);
+	// alarm(1);
 	token = 1;
 }
 
@@ -22,9 +23,16 @@ int main(int argc, char *argv[])
 	int fd;
 	char buf[BUFSIZE] = {};
 	int cnt;
+	struct itimerval itv;
 
 	signal(SIGALRM, alrm_handler);
-	alarm(1);
+	// sigaction
+	// alarm(1);
+	itv.it_interval.tv_sec = 0;
+	itv.it_interval.tv_usec = 100000;
+	itv.it_value.tv_sec = 3;
+	itv.it_value.tv_usec = 500000;
+	setitimer(ITIMER_REAL, &itv, NULL);
 
 	if (argc < 2)
 		return 1;

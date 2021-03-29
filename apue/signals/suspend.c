@@ -16,6 +16,11 @@ static void handler2(int s)
 int main(void)
 {
 	sigset_t set, oldset;
+	struct sigaction act;
+
+	act.sa_handler = handler1;
+	act.sa_flags = 0;
+	sigaction(SIGRTMIN+1, &act, NULL);
 
 	signal(SIGINT, handler1);
 	signal(SIGQUIT, handler2);
@@ -23,6 +28,7 @@ int main(void)
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGQUIT);
+	sigaddset(&set, SIGRTMIN+1);
 
 	sigprocmask(SIG_BLOCK, &set, &oldset);
 

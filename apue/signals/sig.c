@@ -17,9 +17,15 @@ static void handler(int s)
 int main(void)
 {
 	int i = 0;
-	sighandler_t sig = signal(SIGINT, handler);
+	struct sigaction act, oldact;
 
-	signal(SIGQUIT, handler);
+	sighandler_t sig = signal(SIGINT, handler);
+	// signal(SIGQUIT, handler);
+	act.sa_handler = handler;
+	act.sa_flags = 0;
+	sigemptyset(&act.sa_mask);
+	sigaddset(&act.sa_mask, SIGINT);
+	sigaction(SIGQUIT, &act, &oldact);
 
 	while (1) {
 		i ++;
