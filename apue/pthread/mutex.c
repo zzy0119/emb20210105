@@ -14,10 +14,37 @@
 static int job = 0; // 临界区
 static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
+static int is_primer(int n)
+{
+	for (int i = 2; i < n; i ++)
+		if (n % i == 0)
+			return 0;
+
+	return 1;
+}
+
 static void *thr_job(void *s)
 {
+	int getn;
 
-
+	while (1) {
+		pthread_mutex_lock(&mut);	
+		if (job == -1) {
+			pthread_mutex_unlock(&mut);
+			pthread_exit((void *)0);
+		}
+		if (job == 0) {
+			pthread_mutex_unlock(&mut);
+			sched_yield();
+			continue;
+		}
+		getn = job;
+		job = 0;
+		pthread_mutex_unlock(&mut);
+	
+		if (is_primer(getn))
+			printf("%d is a primer\n", getn);
+	}
 }
 
 int main(void)
