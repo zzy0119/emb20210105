@@ -6,7 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/select.h>
+#include <poll.h>
 
 #define BUFSIZE	64
 #define TTY1	"/dev/tty8"
@@ -106,7 +106,7 @@ int main(void)
 {
 	int fd1, fd2;
 	struct relay_st *fd12, *fd21;
-	fd_set rset, wset;
+	struct pollfd pfd[2];
 
 	fd1 = open(TTY1, O_RDWR);
 	if (-1 == fd1) {
@@ -119,6 +119,9 @@ int main(void)
 
 	fd12 = relay_create(fd1, fd2);
 	fd21 = relay_create(fd2, fd1);
+
+	pfd[0].fd = fd1;
+	pfd[1].fd = fd2;
 
 	while (1) {
 		if (fd12->state == STATE_T && fd21->state == STATE_T)
@@ -133,30 +136,29 @@ int main(void)
 			continue;
 		}
 
-
-		FD_ZERO(&rset);
-		FD_ZERO(&wset);
+		pfd[0].events = 0;
+		pfd[1].events = 0;
 
 		if (fd12->state == STATE_R) {
-			FD_SET(fd12->rfd, &rset);
+			pfd[0].events |= POLLIN;
 		} else if (fd12->state == STATE_W)
-			FD_SET(fd12->wfd, &wset);
+			pfd[1].events |= POLLOUT;
 
 		if (fd21->state == STATE_R)
-			FD_SET(fd21->rfd, &rset);
+			pfd[1].events |= POLLIN;
 		else if (fd21->state == STATE_W)
-			FD_SET(fd21->wfd, &wset);
+			pfd[0].events |= POLLOUT;
 
-		if (select((fd1>fd2?fd1:fd2)+1, &rset, &wset, NULL, NULL) == -1) {
+		while (poll(pfd, 2, -1) < 0) {
 			if (errno == EINTR)
 				continue;
 			perror("select()");
 			goto ERROR;
 		}
 
-		if (FD_ISSET(fd12->rfd, &rset) || FD_ISSET(fd12->wfd, &wset))
+		if (pfd[0].revents & POLLIN || pfd[1].revents & POLLOUT)
 			relay_drive(fd12);
-		if (FD_ISSET(fd21->rfd, &rset) || FD_ISSET(fd21->wfd, &wset))
+		if (pfd[0].revents & POLLOUT || pfd[1].revents & POLLIN)
 			relay_drive(fd21);
 	}
 
